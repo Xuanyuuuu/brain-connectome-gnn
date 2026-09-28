@@ -53,13 +53,14 @@ flowchart TD
     Q["Global features<br/>demographics · questionnaires"]
     C1["GCNConv → ReLU → Dropout"]
     C2["GCNConv → ReLU"]
-    R["Readout: per node / network / component<br/>mean pool → flatten"]
+    S["Concat raw strength · clustering to each node"]
+    R["Readout (one of)<br/>node: flatten 200 nodes<br/>network: mean pool within 17 networks → flatten<br/>component: mean pool within 54 components → flatten"]
     M["Linear → ReLU → Dropout"]
     H["Concat → Dropout → Linear"]
     Y["P(female)"]
     G --> C1
     X --> C1
-    C1 --> C2 --> R --> H
+    C1 --> C2 --> S --> R --> H
     Q --> M --> H
     H --> Y
 ```
