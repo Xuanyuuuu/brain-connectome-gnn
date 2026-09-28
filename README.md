@@ -68,9 +68,9 @@ flowchart TD
 **Graph construction** (one graph per participant):
 
 - **Nodes:** the 200 Schaefer ROIs.
-- **Edge weight:** |r<sub>ij</sub>|, the absolute Pearson correlation between the BOLD time series of ROIs *i* and *j* (as provided in the 36P connectome). The sign is dropped.
+- **Edge weight:** |r<sub>ij</sub>|, the absolute value of the precomputed Pearson correlation between ROIs *i* and *j*, taken from the provided connectome file (`..._36P_Pearson.csv`).
 - **Sparsification:** keep an edge only if |r<sub>ij</sub>| is in that participant's top 20% of the 19,900 ROI pairs. The graph is undirected, with no self-loops.
-- **Node features:** strength (Σ<sub>j</sub>|r<sub>ij</sub>|) and weighted clustering coefficient, both computed on the dense |r| matrix and standardised with training-set statistics; plus fixed atlas features (RAS coordinates, one-hot network and component).
+- **Node features:** strength (Σ<sub>j</sub>|r<sub>ij</sub>|) and weighted clustering coefficient, both computed on the dense |r| matrix, then z-scored per ROI using the mean and SD across training participants; plus fixed atlas features (RAS coordinates, one-hot network and component).
 
 Loss: BCEWithLogits. Optimiser: AdamW, with a separate weight decay on the global branch.
 The decision threshold is chosen on validation and applied unchanged to test.
