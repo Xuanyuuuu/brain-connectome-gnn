@@ -48,8 +48,8 @@ Outputs go to `dataStorage/`; each GNN run saves its metrics, history and curves
 
 ```mermaid
 flowchart TD
-    G["Connectome graph<br/>200 ROIs · |r| edges, top 20% kept"]
-    X["Node features<br/>strength · clustering · atlas features"]
+    G["Participant graph<br/>200 nodes · weighted edges (see below)"]
+    X["Node features<br/>strength · clustering · atlas"]
     Q["Global features<br/>demographics · questionnaires"]
     C1["GCNConv → ReLU → Dropout"]
     C2["GCNConv → ReLU"]
@@ -63,6 +63,13 @@ flowchart TD
     Q --> M --> H
     H --> Y
 ```
+
+**Graph construction** (one graph per participant):
+
+- **Nodes:** the 200 Schaefer ROIs.
+- **Edge weight:** |r<sub>ij</sub>|, the absolute Pearson correlation between the BOLD time series of ROIs *i* and *j* (as provided in the 36P connectome). The sign is dropped.
+- **Sparsification:** keep an edge only if |r<sub>ij</sub>| is in that participant's top 20% of the 19,900 ROI pairs. The graph is undirected, with no self-loops.
+- **Node features:** strength (Σ<sub>j</sub>|r<sub>ij</sub>|) and weighted clustering coefficient, both computed on the dense |r| matrix; plus fixed atlas features (RAS coordinates, one-hot network and component).
 
 Loss: BCEWithLogits. Optimiser: AdamW, with a separate weight decay on the global branch.
 The decision threshold is chosen on validation and applied unchanged to test.
