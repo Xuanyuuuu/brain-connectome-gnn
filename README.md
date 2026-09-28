@@ -1,0 +1,91 @@
+# Brain-Connectome GNN for Sex Classification
+
+Predicts participant sex (`Sex_F`) from resting-state fMRI connectomes and
+demographic/questionnaire data (WiDS Datathon 2025), using a GNN on the
+Schaefer-200 parcellation.
+
+## Data
+
+Not included. Expected layout, one level above this repo:
+
+```
+widsdatathon2025_new/
+├── Schaefer200_merged_labels.csv
+└── TRAIN_NEW/
+    ├── TRAIN_FUNCTIONAL_CONNECTOME_MATRICES_new_36P_Pearson.csv
+    ├── TRAIN_CATEGORICAL_METADATA_new.xlsx
+    ├── TRAIN_QUANTITATIVE_METADATA_new.xlsx
+    └── TRAINING_SOLUTIONS.xlsx
+```
+
+## Pipeline
+
+```mermaid
+flowchart TD
+    A["data_access.py<br/>align tables · impute (train-fit) · stratified split 776/194/243"]
+    B["graph_data.py<br/>200×200 connectomes · node strength · weighted clustering"]
+    C["atlas.py<br/>ROI coordinates · network / component one-hot"]
+    D["logistic_regression.py<br/>baseline"]
+    E["GNN_data.py<br/>build one PyG graph per participant"]
+    F["GNN_train.py<br/>train · early stop on val AUC · evaluate on test"]
+    A --> B --> C
+    C --> D
+    C --> E --> F
+```
+
+```bash
+pip install -r requirements.txt
+python data_access.py
+python graph_data.py
+python atlas.py
+python logistic_regression.py
+python GNN_train.py
+```
+
+Outputs go to `dataStorage/`; each GNN run saves its metrics, history and curves to `dataStorage/GNN_Run/<run>/`.
+
+## Model
+
+```mermaid
+flowchart TD
+    G["Connectome graph<br/>200 ROIs · |r| edges, top 20% kept"]
+    X["Node features<br/>strength · clustering · atlas features"]
+    Q["Global features<br/>demographics · questionnaires"]
+    C1["GCNConv → ReLU → Dropout"]
+    C2["GCNConv → ReLU"]
+    R["Readout: per node / network / component<br/>mean pool → flatten"]
+    M["Linear → ReLU → Dropout"]
+    H["Concat → Dropout → Linear"]
+    Y["P(female)"]
+    G --> C1
+    X --> C1
+    C1 --> C2 --> R --> H
+    Q --> M --> H
+    H --> Y
+```
+
+Loss: BCEWithLogits. Optimiser: AdamW, with a separate weight decay on the global branch.
+The decision threshold is chosen on validation and applied unchanged to test.
+
+## Results
+
+> Preliminary, single split / single seed. Multi-seed mean ± std in progress.
+
+| Model | Val AUC | Test AUC |
+|---|---|---|
+| Logistic regression (C = 0.01, chosen on val) | 0.645 | 0.744 |
+| GNN, node readout | 0.656 | 0.737 |
+| GNN, network readout | 0.675 | 0.719 |
+| GNN, component readout | 0.665 | 0.726 |
+
+## Tests
+
+```bash
+python test_graph_data.py
+python test_gnn_data.py
+python test_logistic_results.py gender
+```
+
+## Environment
+
+Python 3.13 · PyTorch 2.10 · PyG 2.8 · scikit-learn 1.5 · NetworkX 3.6 · pandas 3.0

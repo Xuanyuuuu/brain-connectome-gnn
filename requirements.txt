@@ -1,0 +1,7 @@
+torch==2.10.0
+torch_geometric==2.8.0
+scikit-learn==1.5.2
+networkx==3.6.1
+pandas==3.0.1
+openpyxl
+matplotlib
