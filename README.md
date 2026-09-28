@@ -77,14 +77,20 @@ The decision threshold is chosen on validation and applied unchanged to test.
 
 ## Results
 
-> Preliminary, single split / single seed. Multi-seed mean ± std in progress.
+Single split (train/val/test = 776/194/243), single training seed.
+Hyperparameters were selected on the validation set only (for the GNN, separately for each readout); the test set was evaluated once per selected configuration.
 
-| Model | Val AUC | Test AUC |
-|---|---|---|
-| Logistic regression (C = 0.01, chosen on val) | 0.645 | 0.744 |
-| GNN, node readout | 0.656 | 0.737 |
-| GNN, network readout | 0.675 | 0.719 |
-| GNN, component readout | 0.665 | 0.726 |
+| Model | Val AUC | Test AUC | Test Acc |
+|---|---|---|---|
+| Logistic regression (C = 0.01) | 0.645 | 0.744 | 0.749 |
+| GNN, node readout | 0.665 | 0.757 | 0.724 |
+| GNN, network readout | 0.675 | 0.719 | 0.560 |
+| GNN, component readout | 0.665 | 0.726 | 0.543 |
+
+Test AUC exceeds validation AUC for every model, including the linear baseline,
+which points to split variance rather than overfitting to the test set
+(with ~200 samples, the standard error of AUC is ≈ 0.04).
+Differences between models are within this range. Cross-validated mean ± std is in progress.
 
 ## Tests
 
