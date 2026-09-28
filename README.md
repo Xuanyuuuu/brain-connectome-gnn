@@ -50,7 +50,7 @@ Outputs go to `dataStorage/`; each GNN run saves its metrics, history and curves
 flowchart TD
     G["Participant graph<br/>200 nodes · weighted edges (see below)"]
     X["Node features<br/>strength · clustering · atlas"]
-    Q["Global features<br/>demographics · questionnaires"]
+    Q["Global features<br/>demographics · questionnaires · graph summary features"]
     C1["GCNConv → ReLU → Dropout"]
     C2["GCNConv → ReLU"]
     S["Concat input strength · clustering to each node"]
