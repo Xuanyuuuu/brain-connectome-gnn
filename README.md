@@ -78,7 +78,7 @@ The decision threshold is chosen on validation and applied unchanged to test.
 ## Results
 
 Single split (train/val/test = 776/194/243), single training seed.
-Hyperparameters were selected on the validation set only (for the GNN, separately for each readout); the test set was evaluated once per selected configuration.
+Hyperparameters were selected on the validation set only (for the GNN, separately for each readout); test metrics are reported for the selected configuration.
 
 | Model | Val AUC | Test AUC | Test Acc |
 |---|---|---|---|
